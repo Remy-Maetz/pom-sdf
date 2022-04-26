@@ -1,5 +1,7 @@
 fileFormatVersion: 2
 guid: be2a175236986ad49abb278a4798ef03
+labels:
+- HeightSDF
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
