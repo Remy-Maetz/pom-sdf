@@ -1,13 +1,9 @@
 void CustomPOM_float(
-	Texture2D heightmap, SamplerState heightmapSS, float amplitude, float2 uvs, float3 viewDirWS, float3 normalWS, float3 tangentWS, float3 biTangentWS, float viewZScale, int maxSteps,
+	Texture2D heightmap, SamplerState heightmapSS, float amplitude, float2 uvs, float3 viewDirWS, float3 normalWS, float3 tangentWS, float3 biTangentWS, float viewZScale, int maxSteps, bool useSDF,
 	out float2 parallaxUVs, out float steps, out float4 debugVector
 )
 {
 	maxSteps = min(maxSteps, 256);
-
-	parallaxUVs = uvs;
-	steps = 0;
-	debugVector = float4(0, 0, 0, 0);
 
 	viewDirWS = normalize(viewDirWS);
 	viewDirWS /= viewZScale;
@@ -15,11 +11,16 @@ void CustomPOM_float(
 	tangentWS = normalize(tangentWS);
 	biTangentWS = normalize(biTangentWS);
 
-	steps = 0;
-
 	float viewDirN = dot(viewDirWS, -normalWS);
 	float viewDirT = dot(viewDirWS, tangentWS);
 	float viewDirB = dot(viewDirWS, biTangentWS);
+
+	float origSDF = heightmap.Sample(heightmapSS, uvs).g;
+	float origDistance = origSDF * amplitude;
+
+	parallaxUVs = uvs;
+	steps = 0;
+	debugVector = float4(0, 0, 0, 0);
 
 	float scale = amplitude/ viewDirN;
 	scale /= maxSteps;
@@ -29,23 +30,40 @@ void CustomPOM_float(
 	float hStep = 1.0 / maxSteps;
 	float h = 0;
 
-	debugVector.rgb = scale;
+	float traveledDistance = 0;
+
+	if (useSDF)
+	{
+		parallaxUVs = uvs + float2(viewDirT, viewDirB) * origDistance;
+		h += origSDF * abs(viewDirN);
+		traveledDistance += origDistance;
+		/*
+		float amplitudeDiff = amplitude - origDistance;
+		scale = amplitudeDiff / viewDirN;
+		scale /= maxSteps;
+		uvStep = float2(viewDirT, viewDirB) * scale;
+		hStep = (1.0 - origSDF) / maxSteps;
+		*/
+	}
 
 	[loop]
 	for (int i = 0; i < maxSteps; i++)
 	{
 		float t = 1.0 - heightmap.Sample(heightmapSS, parallaxUVs).r;
 
-		if (h > t)
+		if (h >= t)
 		{
 			float s = (h - t) / hStep;
 			//parallaxUVs -= uvStep * s;
-			debugVector.rgb = s;
+			//debugVector.rgb = s;
 			break;
 		}
 
 		h += hStep;
 		parallaxUVs += uvStep;
+		traveledDistance += scale;
 		steps++;
 	}
+
+	debugVector.rgb = traveledDistance - origDistance;
 }

@@ -8,6 +8,8 @@ public class HeightSDFTextureProcessor : AssetPostprocessor
 {
     const string k_label = "HeightSDF";
 
+    const float  k_scaler = 0.1f;
+
     void OnPostprocessTexture(Texture2D texture)
     {
 
@@ -24,7 +26,7 @@ public class HeightSDFTextureProcessor : AssetPostprocessor
 
         var c = texture.GetPixels(0);
 
-        var maxSearchOffset = minSize / 4;
+        var maxSearchOffset = minSize * k_scaler;
 
         var currentDistance = (float)maxSearchOffset;
         var currentSearchOffset = 0;
@@ -58,7 +60,6 @@ public class HeightSDFTextureProcessor : AssetPostprocessor
     {
         var o = startDistance;
         float v = 0f;
-        var minD = Mathf.Min(height, width) / 4;
 
         int xv = 0;
         int yv = 0;
@@ -71,7 +72,7 @@ public class HeightSDFTextureProcessor : AssetPostprocessor
             offset.y = distance;
             offset.z = 0;
 
-            if (offset.magnitude > (minD * o)) continue;
+            if (offset.magnitude > (maxDepthValue * o)) continue;
 
             xv = (x + xo + width) % width;
 
@@ -85,13 +86,13 @@ public class HeightSDFTextureProcessor : AssetPostprocessor
         }
 
 
-        for (int yo = -distance+1; yo <= distance; yo++)
+        for (int yo = -distance+1; yo < distance; yo++)
         {
             offset.x = distance;
             offset.y = yo;
             offset.z = 0;
 
-            if (offset.magnitude > (minD * o)) continue;
+            if (offset.magnitude > (maxDepthValue * o)) continue;
 
             yv = (y + yo + height) % height;
 

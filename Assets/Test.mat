@@ -22,7 +22,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Test
   m_Shader: {fileID: -6465566751694194690, guid: 3501d7d8300107d4194575783bdb5049, type: 3}
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _DEBUG
   m_InvalidKeywords:
   - _NORMALMAP
   - _PARALLAXMAP
@@ -112,7 +113,7 @@ Material:
     - _ClearCoatSmoothness: 0
     - _Cull: 2
     - _Cutoff: 0.5
-    - _DEBUG: 0
+    - _DEBUG: 1
     - _DebugVector: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
@@ -135,6 +136,7 @@ Material:
     - _SrcBlend: 1
     - _Steps: 32
     - _Surface: 0
+    - _UseSDF: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
