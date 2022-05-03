@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using System;
 
 public class HeightSDFTextureProcessor : AssetPostprocessor
 {
@@ -106,5 +107,32 @@ public class HeightSDFTextureProcessor : AssetPostprocessor
         }
 
         return o;
+    }
+}
+
+[CustomEditor(typeof(TextureImporter))]
+public class HeightSDFTextureImporterAddition : Editor
+{
+    Editor defaultEditor;
+
+    private void OnEnable()
+    {
+        defaultEditor = Editor.CreateEditor(targets, Type.GetType("UnityEditor.TextureImporterInspector, UnityEditor"));
+    }
+
+    private void OnDisable()
+    {
+        DestroyImmediate(defaultEditor);
+    }
+
+    public override void OnInspectorGUI()
+    {
+        serializedObject.Update();
+
+        defaultEditor.OnInspectorGUI();
+
+        EditorGUILayout.Toggle("Generate SDF from heightmap", false);
+
+        serializedObject.ApplyModifiedProperties();
     }
 }
